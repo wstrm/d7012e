@@ -1,8 +1,7 @@
 -- Exercise 3.7 from:
 -- Simon Thompson: Haskell - The Craft of Functional Programming, 2/E
-
 threeDifferent1 :: Int -> Int -> Int -> Bool
-threeDifferent1 m n p = if m /= n && n /= p && m /= p then True else False
+threeDifferent1 m n p = m /= n && n /= p && m /= p
 
 threeDifferent2 :: Int -> Int -> Int -> Bool
 threeDifferent2 m n p
