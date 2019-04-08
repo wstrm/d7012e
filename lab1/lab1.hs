@@ -59,7 +59,10 @@ formatSets (x:xs) = showSet x ++ "\n" ++ formatSets xs
 -- prints them to the console with a header.
 printKSmallestSets :: Int -> List -> IO ()
 printKSmallestSets k l =
-  putStrLn $ "size\ti\tj\tsublist\n" ++ formatSets (kSmallestSets k l)
+  putStrLn $
+  "Entire list: " ++
+  show l ++
+  "\n\nsize\ti\tj\tsublist\n" ++ formatSets (kSmallestSets k l) ++ "\n"
 
 main :: IO ()
 main = do
