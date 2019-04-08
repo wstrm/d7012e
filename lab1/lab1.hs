@@ -2,17 +2,14 @@ type Size = Int
 
 type Index = Int
 
-type Set = [Int]
-
 type List = [Int]
 
-type Sets = [(Size, Index, Index, Set)]
+type Sublist = List
 
--- makePrintSets :: Sets -> PrintSets
--- makePrintSets (x:xs)
---   | not (null xs) = (sum x, ) ++ makePrintSets xs
---   | otherwise = []
---
+type Set = (Size, Index, Index, Sublist)
+
+type Sets = [Set]
+
 -- sort a list of sets using Quicksort.
 sort :: Sets -> Sets
 sort [] = []
@@ -21,7 +18,8 @@ sort (p:xs) = sort l ++ [p] ++ sort r
     l = filter (< p) xs -- (<) compares with the first element of each tuple,
     r = filter (>= p) xs -- same goes for (>=) as above.
 
-sublist :: Int -> Int -> List -> List
+-- sublist produces the sub list between the provided indices (inclusive).
+sublist :: Int -> Int -> List -> Sublist
 sublist i j = drop i . take (j + 1)
 
 -- sets produces the different sets that is possible for the provided list and
@@ -42,14 +40,29 @@ sets l = aux 0 0
 smallest :: Int -> Sets -> Sets
 smallest k = take k . sort
 
--- kSmallestSet returns the smallest k sets from a list.
-kSmallestSet :: Int -> List -> Sets
-kSmallestSet _ [] = error "empty list has no smallest k-sets"
-kSmallestSet k l = smallest k (sets l)
+-- kSmallestSets returns the smallest k sets from a list.
+kSmallestSets :: Int -> List -> Sets
+kSmallestSets _ [] = error "empty list has no smallest k-sets"
+kSmallestSets k l = smallest k (sets l)
 
+-- showSet stringifies a set.
+showSet :: Set -> String
+showSet (s, i, j, l) =
+  show s ++ "\t" ++ show (i + 1) ++ "\t" ++ show (j + 1) ++ "\t" ++ show l
+
+-- formatSets stringifies a list of sets.
+formatSets :: Sets -> String
+formatSets [] = ""
+formatSets (x:xs) = showSet x ++ "\n" ++ formatSets xs
+
+-- printKSmallestSets produces the k smallest sets of the provided list and
+-- prints them to the console with a header.
+printKSmallestSets :: Int -> List -> IO ()
+printKSmallestSets k l =
+  putStrLn $ "size\ti\tj\tsublist\n" ++ formatSets (kSmallestSets k l)
+
+main :: IO ()
 main = do
-  print $ kSmallestSet 3 [-1, 2, -3, 4, -5]
-  print $ kSmallestSet 3 [x * (-1) ^ x | x <- [1 .. 100]] -- Test case 1
-  print $ kSmallestSet 3 [24, -11, -34, 42, -24, 7, -19, 21] -- Test case 2
-  print $ kSmallestSet 3 [3, 2, -4, 3, 2, -5, -2, 2, 3, -3, 2, -5, 6, -2, 2, 3] -- Test case 3
-  print $ kSmallestSet 0 []
+  printKSmallestSets 15 [x * (-1) ^ x | x <- [1 .. 100]]
+  printKSmallestSets 6 [24, -11, -34, 42, -24, 7, -19, 21]
+  printKSmallestSets 8 [3, 2, -4, 3, 2, -5, -2, 2, 3, -3, 2, -5, 6, -2, 2, 3]
