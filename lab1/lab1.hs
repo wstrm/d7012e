@@ -1,3 +1,6 @@
+-- Lab H1: Smallest _k_ sets
+-- Course: D7012E Declarative languages
+-- Student: William Wennerström <wenwil-5@student.ltu.se>
 type Size = Int
 
 type Index = Int
