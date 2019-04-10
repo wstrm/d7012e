@@ -1,3 +1,9 @@
+{-
+  Lab H2: Abstract syntax trees, symbolic derivation, and numerical equation
+          solving
+  Course: D7012E Declarative languages
+  Student: William Wennerström <wenwil-5@student.ltu.se>
+-}
 -- Code to Haskell lab assignment 2 in the course D7012E by Håkan Jonsson
 import Data.Char
 
