@@ -118,3 +118,12 @@ simplify (Op oper left right) =
 
 mkfun :: (EXPR, EXPR) -> (Float -> Float)
 mkfun (body, Var v) x = eval body [(v, x)]
+
+findzero :: String -> String -> Float -> Float
+findzero s1 s2 x0
+  | abs (x1 - x0) > 0.0001 = findzero s1 s2 x1
+  | otherwise = x0
+  where
+    f = mkfun (parse s2, Var s1)
+    f' = mkfun (diff (Var s1) (parse s2), Var s1)
+    x1 = x0 - f x0 / f' x0
