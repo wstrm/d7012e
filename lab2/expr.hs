@@ -73,6 +73,10 @@ eval (Op "+" left right) env = eval left env + eval right env
 eval (Op "-" left right) env = eval left env - eval right env
 eval (Op "*" left right) env = eval left env * eval right env
 eval (Op "/" left right) env = eval left env / eval right env
+eval (App "sin" arg) env = sin (eval arg env)
+eval (App "cos" arg) env = cos (eval arg env)
+eval (App "log" arg) env = log (eval arg env)
+eval (App "exp" arg) env = exp (eval arg env)
 
 diff :: EXPR -> EXPR -> EXPR
 diff _ (Const _) = Const 0
@@ -84,11 +88,16 @@ diff v (Op "-" e1 e2) = Op "-" (diff v e1) (diff v e2)
 diff v (Op "*" e1 e2) = Op "+" (Op "*" (diff v e1) e2) (Op "*" e1 (diff v e2))
 diff v (Op "/" e1 e2) =
   Op "/" (Op "-" (Op "*" (diff v e1) e1) (Op "*" e1 (diff v e2))) (Op "*" e2 e2)
+diff v (App "sin" x) = App "cos" (diff v x) -- (sin(x))' = cos(x)
+diff v (App "cos" x) = Op "*" (Const (-1)) (App "sin" (diff v x)) -- (cos(x))' = -sin(x)
+diff v (App "log" x) = Op "/" (Const 1) (diff v x) -- (ln(a))' = 1/a
+diff v (App "exp" x) = App "exp" (diff v x) -- (e^x)' = e^x
 diff _ _ = error "can not compute the derivative"
 
 simplify :: EXPR -> EXPR
 simplify (Const n) = Const n
 simplify (Var id) = Var id
+simplify (App oper x) = App oper x
 simplify (Op oper left right) =
   let (lefts, rights) = (simplify left, simplify right)
    in case (oper, lefts, rights) of
