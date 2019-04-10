@@ -62,6 +62,7 @@ unparse :: EXPR -> String
 unparse (Const n) = show n
 unparse (Var s) = s
 unparse (Op oper e1 e2) = "(" ++ unparse e1 ++ oper ++ unparse e2 ++ ")"
+unparse (App oper a) = oper ++ "(" ++ unparse a ++ ")"
 
 eval :: EXPR -> [(String, Float)] -> Float
 eval (Const n) _ = fromIntegral n
@@ -97,7 +98,7 @@ diff _ _ = error "can not compute the derivative"
 simplify :: EXPR -> EXPR
 simplify (Const n) = Const n
 simplify (Var id) = Var id
-simplify (App oper x) = App oper x
+simplify (App oper x) = App oper (simplify x)
 simplify (Op oper left right) =
   let (lefts, rights) = (simplify left, simplify right)
    in case (oper, lefts, rights) of
