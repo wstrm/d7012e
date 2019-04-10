@@ -127,3 +127,25 @@ findzero s1 s2 x0
     f = mkfun (parse s2, Var s1)
     f' = mkfun (diff (Var s1) (parse s2), Var s1)
     x1 = x0 - f x0 / f' x0
+
+main = do
+  putStrLn "Task 1"
+  -- Expect (2 cos(2 x)) exp(sin(2 x)) [from spec.]
+  print $ unparse (simplify (diff (Var "x") (parse "exp(sin(2*x))")))
+  -- Expect cos(y) + cos^2(y) - sin^2(y)
+  print $ unparse (simplify (diff (Var "y") (parse "cos(y)*sin(y)+sin(y)")))
+  --
+  putStrLn "\nTask 2"
+  print $ mkfun (parse "x*x+2", Var "x") 3.0 -- Expect 11.0
+  print $ mkfun (parse "x+2", Var "x") 3.0 -- Expect 5.0
+  print $ mkfun (parse "exp(x)+2", Var "x") 3.0 -- Expect 22.085537
+  --
+  putStrLn "\nTask 3"
+  print $ findzero "x" "x*x*x+x-1" 1.0 -- From spec.
+  print $ findzero "y" "cos(y)*sin(y)" 1.0 -- From spec.
+  print $ findzero "y" "cos(y)*sin(y)+sin(y)" 1.0 -- Expect -9.424989
+  print $ findzero "y" "cos(y)*sin(y)+sin(y)" 2.0 -- Expect 3.1415908
+  print $ findzero "y" "cos(y)*sin(y)+sin(y)" 15.0 -- Expect 15.707961
+  print $ findzero "m" "exp(m)" (-103.0) -- Expect -104
+  print $ findzero "m" "exp(m)" (-105.0) -- Overshoot 0.0001 diff, expect -105
+  print $ findzero "x" "1/(x*x+5*x)" 1.0 -- Expect Infinity! :D
