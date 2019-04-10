@@ -74,10 +74,10 @@ eval (Op "+" left right) env = eval left env + eval right env
 eval (Op "-" left right) env = eval left env - eval right env
 eval (Op "*" left right) env = eval left env * eval right env
 eval (Op "/" left right) env = eval left env / eval right env
-eval (App "sin" arg) env = sin (eval arg env)
-eval (App "cos" arg) env = cos (eval arg env)
-eval (App "log" arg) env = log (eval arg env)
-eval (App "exp" arg) env = exp (eval arg env)
+eval (App "sin" x) env = sin (eval x env)
+eval (App "cos" x) env = cos (eval x env)
+eval (App "log" x) env = log (eval x env)
+eval (App "exp" x) env = exp (eval x env)
 
 diff :: EXPR -> EXPR -> EXPR
 diff _ (Const _) = Const 0
@@ -89,10 +89,10 @@ diff v (Op "-" e1 e2) = Op "-" (diff v e1) (diff v e2)
 diff v (Op "*" e1 e2) = Op "+" (Op "*" (diff v e1) e2) (Op "*" e1 (diff v e2))
 diff v (Op "/" e1 e2) =
   Op "/" (Op "-" (Op "*" (diff v e1) e1) (Op "*" e1 (diff v e2))) (Op "*" e2 e2)
-diff v (App "sin" x) = App "cos" (diff v x) -- (sin(x))' = cos(x)
-diff v (App "cos" x) = Op "*" (Const (-1)) (App "sin" (diff v x)) -- (cos(x))' = -sin(x)
-diff v (App "log" x) = Op "/" (Const 1) (diff v x) -- (ln(a))' = 1/a
-diff v (App "exp" x) = App "exp" (diff v x) -- (e^x)' = e^x
+diff v (App "sin" x) = Op "*" (diff v x) (App "cos" x) -- (sin(kx))' = kcos(kx)
+diff v (App "cos" x) = Op "*" (diff v x) (Op "*" (Const (-1)) (App "sin" x)) -- (cos(kx))' = -ksin(kx)
+diff v (App "log" x) = Op "*" (diff v x) (Op "/" (Const 1) (diff v x)) -- (ln(a))' = 1/a
+diff v (App "exp" x) = Op "*" (diff v x) (App "exp" x) -- (e^kx)' = ke^kx
 diff _ _ = error "can not compute the derivative"
 
 simplify :: EXPR -> EXPR
