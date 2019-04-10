@@ -115,3 +115,6 @@ simplify (Op oper left right) =
             then Const 0
             else Op "-" le re
         (op, le, re) -> Op op le re
+
+mkfun :: (EXPR, EXPR) -> (Float -> Float)
+mkfun (body, Var v) x = eval body [(v, x)]
