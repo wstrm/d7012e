@@ -13,6 +13,9 @@ err message cs = error (message++" near "++cs++"\n")
 
 iter :: Parser a -> Parser [a]
 iter m = m # iter m >-> cons ! return []
+{- Same as:
+iter m = ((m # (iter m)) >-> cons) ! (return [])
+-}
 
 cons(a, b) = a:b
 
@@ -22,8 +25,11 @@ m -# n = error "-# not implemented"
 (#-) :: Parser a -> Parser b -> Parser a
 m #- n = error "#- not implemented"
 
+space :: Parser Char
+space = char ? isSpace
+
 spaces :: Parser String
-spaces =  error "spaces not implemented"
+spaces = space # iter space >-> cons
 
 token :: Parser a -> Parser a
 token m = m #- spaces
