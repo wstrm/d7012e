@@ -26,7 +26,7 @@ char (c:cs) = Just (c, cs)
 return :: a -> Parser a
 return a cs = Just (a, cs)
 
-fail ::  Parser a
+fail :: Parser a
 fail cs = Nothing
 
 (!) :: Parser a -> Parser a -> Parser a

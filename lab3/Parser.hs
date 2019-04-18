@@ -30,24 +30,24 @@ err :: String -> Parser a
 err message cs = error (message ++ " near " ++ cs ++ "\n")
 
 iter :: Parser a -> Parser [a]
-iter m = m # iter m >-> cons ! return []
-
 {- Same as:
 iter m = ((m # (iter m)) >-> cons) ! (return [])
 -}
+iter m = m # iter m >-> cons ! return []
+
 cons (a, b) = a : b
 
 (-#) :: Parser a -> Parser b -> Parser b
-m -# n = error "-# not implemented"
+m -# n = m # n >-> snd
 
 (#-) :: Parser a -> Parser b -> Parser a
-m #- n = error "#- not implemented"
+m #- n = m # n >-> fst
 
 space :: Parser Char
 space = char ? isSpace
 
 spaces :: Parser String
-spaces = space # iter space >-> cons
+spaces = iter space
 
 token :: Parser a -> Parser a
 token m = m #- spaces
@@ -66,7 +66,7 @@ accept :: String -> Parser String
 accept w = token (chars (length w)) ? (== w)
 
 require :: String -> Parser String
-require w = error "require not implemented"
+require w = accept w ! err ("string " ++ w ++ " is missing")
 
 lit :: Char -> Parser Char
 lit c = token char ? (== c)
