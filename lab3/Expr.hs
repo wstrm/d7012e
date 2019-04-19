@@ -94,6 +94,12 @@ value (Var k) dict =
 value (Add t u) dict = value t dict + value u dict
 value (Sub t u) dict = value t dict - value u dict
 value (Mul t u) dict = value t dict * value u dict
+value (Div t u) dict
+  | b == 0 = error "division by zero"
+  | otherwise = a `div` b
+  where
+    a = value t dict
+    b = value u dict
 
 instance Parse Expr where
   parse = expr
