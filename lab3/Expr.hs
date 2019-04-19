@@ -93,6 +93,7 @@ value (Var k) dict =
     _ -> error (k ++ " undefined")
 value (Add t u) dict = value t dict + value u dict
 value (Sub t u) dict = value t dict - value u dict
+value (Mul t u) dict = value t dict * value u dict
 
 instance Parse Expr where
   parse = expr
