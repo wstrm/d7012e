@@ -90,12 +90,12 @@ value (Num n) _ = n
 value (Var k) dict =
   case Dictionary.lookup k dict of
     Just v -> v
-    _ -> error (k ++ " undefined")
+    _ -> error ("undefined variable " ++ k)
 value (Add t u) dict = value t dict + value u dict
 value (Sub t u) dict = value t dict - value u dict
 value (Mul t u) dict = value t dict * value u dict
 value (Div t u) dict
-  | b == 0 = error "division by zero"
+  | b == 0 = error "division by 0"
   | otherwise = a `div` b
   where
     a = value t dict
