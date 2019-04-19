@@ -91,6 +91,7 @@ value (Var k) dict =
   case Dictionary.lookup k dict of
     Just v -> v
     _ -> error (k ++ " undefined")
+value (Add t u) dict = value t dict + value u dict
 
 instance Parse Expr where
   parse = expr
