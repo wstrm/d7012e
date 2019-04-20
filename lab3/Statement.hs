@@ -9,7 +9,7 @@ module Statement
 import qualified Dictionary
 import qualified Expr
 import Parser hiding (T)
-import Prelude hiding (fail, return)
+import Prelude hiding (fail, read, return)
 
 type T = Statement
 
@@ -34,6 +34,10 @@ assignment = word #- accept ":=" # Expr.parse #- require ";" >-> build
 write = accept "write" # Expr.parse #- require ";" >-> build
   where
     build (_, e) = Write e
+
+read = (accept "read" -# word) #- require ";" >-> build
+  where
+    build = Read
 
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
 exec (If cond thenStmts elseStmts:stmts) dict input =
