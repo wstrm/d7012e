@@ -35,9 +35,13 @@ write = accept "write" # Expr.parse #- require ";" >-> build
   where
     build (_, e) = Write e
 
-read = (accept "read" -# word) #- require ";" >-> build
+read = accept "read" -# word #- require ";" >-> build
   where
     build = Read
+
+skip = accept "skip" #- require ";" >-> build
+  where
+    build _ = Skip
 
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
 exec (If cond thenStmts elseStmts:stmts) dict input =
