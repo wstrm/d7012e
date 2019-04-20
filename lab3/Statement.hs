@@ -16,9 +16,15 @@ type T = Statement
 data Statement
   = Assignment String
                Expr.T
-  | If Expr.T
+  | If Expr.T -- 'if' expr 'then' statement 'else' statement
        Statement
        Statement
+  | Begin [Statement] -- 'begin' statements 'end'
+  | Skip -- 'skip' ';
+  | While Expr.T -- 'while' expr 'do' statement
+          Statement
+  | Read String -- 'read' variable ';
+  | Write Expr.T -- 'write' expr ';'
   deriving (Show)
 
 assignment = word #- accept ":=" # Expr.parse #- require ";" >-> buildAss
