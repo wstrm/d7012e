@@ -31,18 +31,22 @@ assignment = word #- accept ":=" # Expr.parse #- require ";" >-> build
   where
     build (v, e) = Assignment v e
 
-write = accept "write" # Expr.parse #- require ";" >-> build
-  where
-    build (_, e) = Write e
+write = accept "write" -# Expr.parse #- require ";" >-> Write
 
-read = accept "read" -# word #- require ";" >-> build
-  where
-    build = Read
+read = accept "read" -# word #- require ";" >-> Read
 
-skip = accept "skip" #- require ";" >-> build
-  where
-    build _ = Skip
+skip = accept "skip" #- require ";" >-> const Skip
 
+while = accept "while" -# Expr.parse #- require "do" >-> While
+
+{-
+ifstmt =
+  accept "if" -# Expr.parse #- require "then" -# iter char #- require "else" #-
+  iter char >->
+  build
+  where
+    build (e, v0, v1) = If e v0 v1
+-}
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
 exec (If cond thenStmts elseStmts:stmts) dict input =
   if Expr.value cond dict > 0
