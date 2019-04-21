@@ -37,16 +37,18 @@ read = accept "read" -# word #- require ";" >-> Read
 
 skip = accept "skip" #- require ";" >-> const Skip
 
-while = accept "while" -# Expr.parse #- require "do" >-> While
+while = accept "while" -# Expr.parse #- require "do" # parse >-> build
+  where
+    build (e, s) = While e s
 
-{-
-ifstmt =
-  accept "if" -# Expr.parse #- require "then" -# iter char #- require "else" #-
-  iter char >->
+if' =
+  accept "if" -# Expr.parse #- require "then" # parse #- require "else" # parse >->
   build
   where
-    build (e, v0, v1) = If e v0 v1
--}
+    build ((e, v0), v1) = If e v0 v1
+
+begin = accept "begin" -# iter parse #- require "end" >-> Begin
+
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
 exec (If cond thenStmts elseStmts:stmts) dict input =
   if Expr.value cond dict > 0
@@ -54,5 +56,5 @@ exec (If cond thenStmts elseStmts:stmts) dict input =
     else exec (elseStmts : stmts) dict input
 
 instance Parse Statement where
-  parse = error "Statement.parse not implemented"
+  parse = assignment ! skip ! begin ! if' ! while ! read ! write
   toString = error "Statement.toString not implemented"
