@@ -15,8 +15,15 @@ newtype T =
   Program [Statement.T]
   deriving (Show)
 
-instance Parse T where
-  parse = iter Statement.parse >-> Program
-  toString = show
+show' :: T -> String
+show' (Program stmts) = concatMap Statement.toString stmts
 
+parse' :: Parser T
+parse' = iter Statement.parse >-> Program
+
+instance Parse T where
+  parse = parse'
+  toString = show'
+
+exec :: T -> [Integer] -> [Integer]
 exec (Program p) = Statement.exec p Dictionary.empty

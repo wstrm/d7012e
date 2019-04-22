@@ -9,7 +9,7 @@ module Statement
 import qualified Dictionary
 import qualified Expr
 import Parser hiding (T)
-import Prelude hiding (fail, read, return)
+import Prelude hiding (fail, read, repeat, return)
 
 type T = Statement
 
@@ -23,6 +23,8 @@ data Statement
        Statement
   | While Expr.T -- 'while' expr 'do' statement
           Statement
+  | Repeat Statement -- ̈́'repeat' statement 'until' expr ';'
+           Expr.T
   | Read String -- 'read' variable ';
   | Write Expr.T -- 'write' expr ';'
   deriving (Show)
@@ -45,6 +47,12 @@ while = accept "while" -# Expr.parse #- require "do" # parse >-> build
   where
     build (e, s) = While e s
 
+repeat =
+  accept "repeat" -# parse #- require "until" # Expr.parse #- require ";" >->
+  build
+  where
+    build (s, e) = Repeat s e
+
 read = accept "read" -# word #- require ";" >-> Read
 
 write = accept "write" -# Expr.parse #- require ";" >-> Write
@@ -62,21 +70,31 @@ exec (If cond then' else':stmts) dict input =
 exec (While cond do':stmts) dict input
   | Expr.value cond dict > 0 = exec (do' : While cond do' : stmts) dict input
   | otherwise = exec stmts dict input
+exec (Repeat do' cond:stmts) dict input = exec (do' : next) dict input
+  where
+    next
+      | Expr.value cond dict > 0 = Repeat do' cond : stmts
+      | otherwise = stmts
 exec (Read var:stmts) dict (input:inputs) =
   exec stmts (Dictionary.insert (var, input) dict) inputs
 exec (Write expr:stmts) dict input =
   Expr.value expr dict : exec stmts dict input
 
+show' :: T -> String
 show' (Assignment var val) = show var ++ " := " ++ Expr.toString val ++ "\n"
 show' Skip = "skip;\n"
-show' (Begin stmts) = foldl (++) "begin\n" ++ map show' stmts ++ "end\n"
+show' (Begin stmts) = foldl (++) "begin\n" (map toString stmts) ++ "end\n"
 show' (If cond then' else') =
   "if " ++
-  Expr.toString cond ++ "then\n" ++ show' then' ++ "else\n" ++ show' else'
-show' (While cond do') = "while " ++ Expr.toString cond ++ "do\n" ++ show' do'
+  Expr.toString cond ++
+  " then\n" ++ toString then' ++ "else\n" ++ toString else'
+show' (While cond do') =
+  "while " ++ Expr.toString cond ++ " do\n" ++ toString do'
+show' (Repeat do' cond) =
+  "repeat\n" ++ toString do' ++ "until " ++ Expr.toString cond ++ "\n"
 show' (Read var) = "read " ++ show var ++ ";\n"
 show' (Write expr) = "write " ++ Expr.toString expr ++ ";\n"
 
 instance Parse Statement where
-  parse = assignment ! skip ! begin ! if' ! while ! read ! write
+  parse = assignment ! skip ! begin ! if' ! while ! repeat ! read ! write
   toString = show'
