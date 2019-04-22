@@ -67,6 +67,16 @@ exec (Read var:stmts) dict (input:inputs) =
 exec (Write expr:stmts) dict input =
   Expr.value expr dict : exec stmts dict input
 
+show' (Assignment var val) = show var ++ " := " ++ Expr.toString val ++ "\n"
+show' Skip = "skip;\n"
+show' (Begin stmts) = foldl (++) "begin\n" ++ map show' stmts ++ "end\n"
+show' (If cond then' else') =
+  "if " ++
+  Expr.toString cond ++ "then\n" ++ show' then' ++ "else\n" ++ show' else'
+show' (While cond do') = "while " ++ Expr.toString cond ++ "do\n" ++ show' do'
+show' (Read var) = "read " ++ show var ++ ";\n"
+show' (Write expr) = "write " ++ Expr.toString expr ++ ";\n"
+
 instance Parse Statement where
   parse = assignment ! skip ! begin ! if' ! while ! read ! write
-  toString = error "Statement.toString not implemented"
+  toString = show'
