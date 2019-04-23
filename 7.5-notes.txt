@@ -1,0 +1,17 @@
+? Test
+ - Returns Nothing if the test on the result is false
+ - Else, Just with the parsed value and the remains of the string.
+
+! Alternative
+ - Requires that any succeed, returns first value if that succeeds, else the
+   second.
+
+# Sequence
+ - Requires both to succeed, returns a tuple with both results.
+
+>-> Transform
+ - Applies a function to the result from a parser.
+
+#> Transfer
+ - Transfer the result from one parser to another, so it can be further
+   processed.
