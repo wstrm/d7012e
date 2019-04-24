@@ -1,0 +1,24 @@
+load (WeightList, MaxWeight, ResultList):-
+	WeightList == [] -> fail;
+	WeightList == [A], A>MaxWeight -> fail;
+	
+	findall( Combination, combinations(WeightList, Combination), CombList),
+	addcomb(CombList, WeightCombList),
+	findbest(WeightCombList, )
+	
+combinations([],[]).
+combinations([Weight|Weights],[Weight|Set]):-
+	combinations(Weights, Set).
+combinations([_|Weights],Set):-
+	combinations(Weights, Set).
+
+addcomb([Comb|Combinations],[(Value, Comb)| Rest]):-
+	addhelp(Comb, Value),
+	
+	
+
+
+addhelp([], 0).
+addhelp([Elem|Elems], Value):-
+	Value is Elem + Value,
+	addhelp(Elems, Value).
