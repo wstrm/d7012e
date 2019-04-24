@@ -1,3 +1,8 @@
+{-
+   Lab H3: Parser Operators with Haskell
+   Course: D7012E Declarative languages
+   Student: William Wennerström <wenwil-5@student.ltu.se>
+-}
 module CoreParser(Parser, char, return, fail, (#), (!), (?), (#>), (>->),
                   Parse, parse, toString, fromString) where
 import Prelude hiding (return, fail)
