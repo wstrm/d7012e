@@ -73,7 +73,7 @@ exec (While cond do':stmts) dict input
 exec (Repeat do' cond:stmts) dict input = exec (do' : next) dict input
   where
     next
-      | Expr.value cond dict > 0 = Repeat do' cond : stmts
+      | Expr.value cond dict <= 0 = Repeat do' cond : stmts
       | otherwise = stmts
 exec (Read var:stmts) dict (input:inputs) =
   exec stmts (Dictionary.insert (var, input) dict) inputs
@@ -81,7 +81,7 @@ exec (Write expr:stmts) dict input =
   Expr.value expr dict : exec stmts dict input
 
 show' :: T -> String
-show' (Assignment var val) = show var ++ " := " ++ Expr.toString val ++ "\n"
+show' (Assignment var val) = var ++ " := " ++ Expr.toString val ++ "\n"
 show' Skip = "skip;\n"
 show' (Begin stmts) = foldl (++) "begin\n" (map toString stmts) ++ "end\n"
 show' (If cond then' else') =

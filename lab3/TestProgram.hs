@@ -48,7 +48,7 @@ p2 =
 \    s := s + n;\
 \    n := n - 1;\
 \  end\
-\until n;\
+\until (0-n)+1;\
 \write s;"
 
 sp = putStr (toString p)
