@@ -1,3 +1,5 @@
+/* vim: set syntax=prolog */
+
 % (a) Variable
 % (b) Atom
 % (c) Atom
@@ -29,3 +31,5 @@
 % 5. What is, if anything, the difference between an atom and a functor?
 %	The functor is an atom, as it cannot be used as a variable. The functor
 %	must however be followed by a '('. Functors are used to build terms.
+
+what(prolog_file) :- this_is(a(prolog_file)).
