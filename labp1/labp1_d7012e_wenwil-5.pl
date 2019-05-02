@@ -1,25 +1,32 @@
-% State:
-% 	* Location of:
-% 		brassKey, steelKey, package, robot.
-% 	* Items in hand, at most 2.
-%
-% Moves:
-% 	* Pick item,
-% 	* Drop item,
-% 	* Enter room.
-%
-% Locations:
-% 	* inventory (only items),
-% 	* room1,
-% 	* room2,
-% 	* room3.
-%
-% Goal:
-% 	state(room1, _, _, inventory)
-%
-% 	Where `state`:
-% 		state(RobotLocation, BrassKeyLocation, SteelKeyLocation,
-% 			PackageLocation)
+/*
+ Lab P1: Package delivery
+ Course: D7012E Declarative languages
+ Student: William Wennerström <wenwil-5@student.ltu.se>
+
+ State:
+	* Location of:
+		brassKey, steelKey, package, robot.
+	* Items in hand, at most 2.
+
+ Moves:
+	* Pick item,
+	* Drop item,
+	* Enter room.
+
+ Locations:
+	* inventory (only items),
+	* room1,
+	* room2,
+	* room3.
+
+ Goal:
+	state(_, _, _, room2), or
+	state(room2, _, _, inventory).
+
+	Where `state`:
+		state(RobotLocation, BrassKeyLocation, SteelKeyLocation,
+			PackageLocation)
+*/
 
 fullInventory(X, X, X) :- X = inventory.
 
