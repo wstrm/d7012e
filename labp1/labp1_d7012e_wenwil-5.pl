@@ -53,22 +53,19 @@ move(	state(room3, inventory, S, P),
 	state(room1, inventory, S, P)).
 
 % Pick up `package` if the robot is in the same room.
-move(	state(R, B, S, P), Move, NextState) :-
-	R = P, % `package` and robot must be in the same room.
+move(	state(R, B, S, R), Move, NextState) :-
 	\+(fullInventory(B, S, inventory)), % Inventory must not be full.
 	Move = pick(package),
 	NextState = state(R, B, S, inventory).
 
 % Pick up `steelKey` if the robot is in the same room.
-move(	state(R, B, S, P), Move, NextState) :-
-	R = S, % `steelKey` and robot must be in the same room.
+move(	state(R, B, R, P), Move, NextState) :-
 	\+(fullInventory(B, inventory, P)), % Inventory must not be full.
 	Move = pick(steelKey),
 	NextState = state(R, B, inventory, P).
 
 % Pick up `brassKey` if the robot is in the same room.
-move(	state(R, B, S, P), Move, NextState) :-
-	R = B, % `brassKey` and robot must be in the same room.
+move(	state(R, R, S, P), Move, NextState) :-
 	\+(fullInventory(inventory, S, P)), % Inventory must not be full.
 	Move = pick(brassKey),
 	NextState = state(R, inventory, S, P).
