@@ -1,0 +1,17 @@
+Adding an item:
+	[X|L], where X is the new item.
+
+In Prolog:
+	add(X, L, [X|L]).
+
+Output:
+	| ?- add(4, [1,2,3], Y).
+	Y= [4,1,2,3]
+	true.
+
+Deleting an item:
+	del(X, L, L1), where L1 is the new list.
+
+In Prolog:
+	del(X, [X|Tail], Tail).
+	del(X, [Y|Tail], [Y|Tail1]) :- del(X, Tail, Tail1)
