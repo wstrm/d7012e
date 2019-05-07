@@ -30,13 +30,15 @@ sublist([Include|_], _, 0, [Include]). % Inclusive.
 sets([], []).
 sets(List, Sets) :- aux(List, 0, 0, Sets).
 
+% Auxiliary function for sets that increments I and J to every valid range of
+% sublists.
 % aux :: List -> Int -> Int -> Sets
 aux(List, I, J, Sets) :- % When J < Length(List).
 	length(List, Length), % ISO defined built-in.
 	J < Length,
 	sublist(List, I, J, Sublist),
 	sum(Sublist, Sum),
-	NextJ is J + 1,
+	NextJ is J+1,
 	aux(List, I, NextJ, NextSets),
 	Sets = [[Sum, I, J, Sublist]|NextSets].
 aux(List, I, J, Sets) :-
@@ -44,9 +46,37 @@ aux(List, I, J, Sets) :-
 	I < Length,
 	sublist(List, I, J, Sublist),
 	sum(Sublist, Sum),
-	NextI is I + 1,
+	NextI is I+1,
 	aux(List, NextI, NextI, NextSets),
 	Sets = [[Sum, I, J, Sublist]|NextSets].
-aux(_, _, _, _).
+aux(_List, Same, Same, []).
+
+remove(X,[X|Xs],Xs).
+remove(X,[Y|Xs],[Y|Ys]) :-
+    dif(X,Y),
+    remove(X,Xs,Ys).
+
+% Smallest sum in a list of sets.
+% smallest :: Sets -> Set
+smallest([Smallest], Smallest).
+smallest([[S1, I1, J1, L1],[S2|_]|Tail], Smallest) :-
+    S1 =< S2,
+    smallest([[S1, I1, J1, L1]|Tail], Smallest).
+smallest([[S1|_],[S2, I2, J2, L2]|Tail], Smallest) :-
+    S1 > S2,
+    smallest([[S2, I2, J2, L2]|Tail], Smallest).
+
+kSmallest(Sets, K, KSets) :-
+	K > 0,
+	NextK is K-1,
+	smallest(Sets, Set),
+	remove(Set, Sets, NextSets),
+	kSmallest(NextSets, NextK, NextSmallest),
+	KSets = [Set|NextSmallest].
+kSmallest([_Skip|Tail], K, KSets) :-
+	K > 0,
+	NextK is K-1,
+	kSmallest(Tail, NextK, KSets).
+kSmallest(Sets, _, Sets).
 
 /* vim: set syntax=prolog */
