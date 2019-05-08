@@ -66,8 +66,6 @@ partition(Pivot, [Head|Tail], [Head|SortedLeft], SortedRight) :-
 	HeadSum =< PivotSum,
 	partition(Pivot, Tail, SortedLeft, SortedRight).
 partition(Pivot, [Head|Tail], SortedLeft, [Head|SortedRight]) :-
-	setSum(Pivot, PivotSum), setSum(Head, HeadSum),
-	HeadSum  > PivotSum,
 	partition(Pivot, Tail, SortedLeft, SortedRight).
 
 % Take the first N items in a list.
