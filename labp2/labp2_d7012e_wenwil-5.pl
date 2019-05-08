@@ -97,11 +97,11 @@ printKSmallestSets() :-
 
 	% Test case 2.
 	printKSmallestSets(
-		8, [3, 2, -4, 3, 2, -5, -2, 2, 3, -3, 2, -5, 6, -2, 2, 3]), nl,
+		6, [24,-11,-34,42,-24,7,-19,21]), nl,
 
 	% Test case 3.
 	printKSmallestSets(
-		6, [24,-11,-34,42,-24,7,-19,21]), nl.
+		8, [3, 2, -4, 3, 2, -5, -2, 2, 3, -3, 2, -5, 6, -2, 2, 3]), nl.
 
 printKSmallestSets(K, List) :-
 	kSmallestSets(K, List, S),
