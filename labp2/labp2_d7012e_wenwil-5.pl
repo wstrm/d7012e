@@ -78,10 +78,44 @@ take(N, [Head|Tail], Sublist) :-
 	take(NextN, Tail, NextSublist),
 	Sublist = [Head|NextSublist].
 
+% The K smallest sets are the K smallest of all possible sets for a list.
 % kSmallestSets :: Int -> List -> Sets
 kSmallestSets(K, List, KSets) :-
 	sets(List, Sets),
 	quicksort(Sets, SortedSets),
 	take(K, SortedSets, KSets).
+
+printKSmallestSets() :-
+	% Example from Lab H1.
+	printKSmallestSets(
+		3, [-1,2,-3,4,-5]), nl,
+
+	% Test case 1.
+	% [x*(-1)^x | x <- [1..100]]
+	findall(X, (between(1,100, I), X is I*(-1)^I), TestCase1),
+	printKSmallestSets(15, TestCase1), nl,
+
+	% Test case 2.
+	printKSmallestSets(
+		8, [3, 2, -4, 3, 2, -5, -2, 2, 3, -3, 2, -5, 6, -2, 2, 3]), nl,
+
+	% Test case 3.
+	printKSmallestSets(
+		6, [24,-11,-34,42,-24,7,-19,21]), nl.
+
+printKSmallestSets(K, List) :-
+	kSmallestSets(K, List, S),
+	write('Entire list: '), write(List), nl, nl,
+	write('size\ti\tj\tsublist'), nl,
+	printKSmallestSets(S).
+
+printKSmallestSets([]).
+printKSmallestSets([set(Sum, I, J, Sublist)|Tail]) :-
+	IncI is I+1, IncJ is J+1,
+	write(Sum), write('\t'),
+	write(IncI), write('\t'),
+	write(IncJ), write('\t'),
+	write(Sublist), nl,
+	printKSmallestSets(Tail).
 
 /* vim: set syntax=prolog */
