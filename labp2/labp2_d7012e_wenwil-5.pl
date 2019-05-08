@@ -70,10 +70,18 @@ partition(Pivot, [Head|Tail], SortedLeft, [Head|SortedRight]) :-
 	HeadSum  > PivotSum,
 	partition(Pivot, Tail, SortedLeft, SortedRight).
 
+% Take the first N items in a list.
+% take :: List -> List
+take(0, _, []).
+take(N, [Head|Tail], Sublist) :-
+	NextN is N-1,
+	take(NextN, Tail, NextSublist),
+	Sublist = [Head|NextSublist].
+
 % kSmallestSets :: Int -> List -> Sets
-kSmallestSets(_K, List, KSets) :-
+kSmallestSets(K, List, KSets) :-
 	sets(List, Sets),
 	quicksort(Sets, SortedSets),
-	KSets = SortedSets.
+	take(K, SortedSets, KSets).
 
 /* vim: set syntax=prolog */
