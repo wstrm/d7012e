@@ -93,7 +93,7 @@ winner(State, Plyr) :-
 	score(State, 1, Score1),
 	score(State, 2, Score2),
 	Score1 =\= Score2,
-	((Score1 > Score2) ->
+	((Score1 < Score2) ->
 		Plyr = 1;
 		Plyr = 2).
 
