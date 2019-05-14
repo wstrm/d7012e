@@ -140,7 +140,9 @@ tie(State) :-
 %% define terminal(State).
 %   - true if State is a terminal
 % terminal :: [[Any]]
-%terminal(State) :-
+terminal(State) :-
+	moves(1, State, []),
+	moves(2, State, []).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
