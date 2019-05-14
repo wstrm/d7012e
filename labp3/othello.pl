@@ -1,17 +1,17 @@
 /* ------------------------------------------------------- */
-%
-%    D7012E Declarative languages
-%    Luleå University of Technology
-%
-%    Student full name: <TO BE FILLED IN BEFORE THE GRADING>
-%    Student user id  : <TO BE FILLED IN BEFORE THE GRADING>
-%
-/* ------------------------------------------------------- */
+ %
+ %    D7012E Declarative languages
+ %    Luleå University of Technology
+ %
+ %    Student full name: <TO BE FILLED IN BEFORE THE GRADING>
+ %    Student user id  : <TO BE FILLED IN BEFORE THE GRADING>
+ %
+ /* ------------------------------------------------------- */
 
 
 
-%do not chagne the follwoing line!
-:- ensure_loaded('play.pl').
+  %do not chagne the follwoing line!
+  :- ensure_loaded('play.pl').
 
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
@@ -67,11 +67,11 @@
 % given helper: Inital state of the board
 
 initBoard([ [.,.,.,.,.,.],
-            [.,.,.,.,.,.],
-	    [.,.,1,2,.,.],
-	    [.,.,2,1,.,.],
-            [.,.,.,.,.,.],
-	    [.,.,.,.,.,.] ]).
+[.,.,.,.,.,.],
+[.,.,1,2,.,.],
+[.,.,2,1,.,.],
+[.,.,.,.,.,.],
+[.,.,.,.,.,.] ]).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -90,13 +90,12 @@ initialize(InitialState, 1) :- initBoard(InitialState).
 %     Plyr has a higher score than the other player
 winner(State, Plyr) :-
 	terminal(State),
-	score(State, 0, Score1),
-	score(State, 1, Score2),
+	score(State, 1, Score1),
+	score(State, 2, Score2),
+	Score1 =\= Score2,
 	((Score1 > Score2) ->
-		Plyr = 0;
-		Plyr = 1).
-
-test(Score) :- initialize(State, _), score(State, 2, Score).
+		Plyr = 1;
+		Plyr = 2).
 
 % score :: [[Any]] -> Int -> Int
 % score is the relation between a game state, a player and their score.
@@ -128,10 +127,11 @@ score(State, Plyr, Score, X, Y) :-
 %%
 %% define tie(State) here.
 %    - true if terminal State is a "tie" (no winner)
-
-
-
-
+% tie :: [[Any]]
+tie(State) :-
+	terminal(State),
+	score(State, 1, SameScore),
+	score(State, 2, SameScore).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -139,10 +139,8 @@ score(State, Plyr, Score, X, Y) :-
 %%
 %% define terminal(State).
 %   - true if State is a terminal
-
-
-
-
+% terminal :: [[Any]]
+%terminal(State) :-
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -321,12 +319,12 @@ get( Board, [X, Y], Value) :-
 % NewBoard. Do not change set:
 
 set( [Row|RestRows], [NewRow|RestRows], [X, 0], Value) :-
-    setInList(Row, NewRow, X, Value).
+	setInList(Row, NewRow, X, Value).
 
 set( [Row|RestRows], [Row|NewRestRows], [X, Y], Value) :-
-    Y > 0,
-    Y1 is Y-1,
-    set( RestRows, NewRestRows, [X, Y1], Value).
+	Y > 0,
+	Y1 is Y-1,
+	set( RestRows, NewRestRows, [X, Y1], Value).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
