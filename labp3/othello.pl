@@ -79,10 +79,7 @@ initBoard([ [.,.,.,.,.,.],
 %%% Using initBoard define initialize(InitialState,InitialPlyr).
 %%%  holds iff InitialState is the initial state and
 %%%  InitialPlyr is the player who moves first.
-
-
-
-
+initialize(InitialState, 1) :- initBoard(InitialState).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -91,10 +88,39 @@ initBoard([ [.,.,.,.,.,.],
 %% define winner(State,Plyr) here.
 %     - returns winning player if State is a terminal position and
 %     Plyr has a higher score than the other player
+winner(State, Plyr) :-
+	terminal(State),
+	score(State, 0, Score1),
+	score(State, 1, Score2),
+	((Score1 > Score2) ->
+		Plyr = 0;
+		Plyr = 1).
 
+test(Score) :- initialize(State, _), score(State, 2, Score).
 
+% score :: [[Any]] -> Int -> Int
+% score is the relation between a game state, a player and their score.
+score(State, Plyr, Score) :- score(State, Plyr, Score, 0, 0).
 
+% Stop recursion when both X and Y is out of bounds.
+score(_State, _Plyr, 0, X, Y) :- X > 5, Y > 5.
 
+% If Y is out of bounds, reset Y and increment X.
+score(State, Plyr, Score, X, Y) :- Y > 5, score(State, Plyr, Score, X + 1, 0).
+
+% Check if player has a score in at the [X, Y] coordinate, if so, continue the
+% recursion and add 1 to the final score (together with the result from the
+% recursion).
+score(State, Plyr, Score, X, Y) :-
+	Xi is X, Yi is Y,
+	get(State, [Xi, Yi], Plyr),
+	score(State, Plyr, NextScore, X, Y + 1),
+	Score is NextScore + 1.
+
+% No score for the provided coordinate, continue recursion without adding any
+% points.
+score(State, Plyr, Score, X, Y) :-
+	score(State, Plyr, Score, X, Y + 1).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -313,4 +339,3 @@ setInList( [Element|RestList], [Element|NewRestList], Index, Value) :-
 	Index > 0,
 	Index1 is Index-1,
 	setInList( RestList, NewRestList, Index1, Value).
-
