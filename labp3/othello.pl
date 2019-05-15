@@ -276,10 +276,9 @@ findMove(State, Plyr, Opp, [X, Y], Wind, Prev, Mv) :-
 %%
 %% define validmove(Plyr,State,Proposed).
 %   - true if Proposed move by Plyr is valid at State.
-
-
-
-
+validmove(Plyr, State, Proposed) :-
+	moves(Plyr, State, MvList),
+	member(Proposed, MvList), !.
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
