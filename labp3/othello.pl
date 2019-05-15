@@ -92,8 +92,8 @@ pieces(_State, _Plyr, [], X, Y) :- X > 5, Y > 5.
 pieces(State, Plyr, Pieces, X, Y) :- Y > 5,
 	pieces(State, Plyr, Pieces, X + 1, 0).
 
-% Check if player has a piece at the [X, Y] coordinate, if add the coordinate to
-% the list of pieces.
+% Check if player has a piece at the [X, Y] coordinate, if so, add the
+% coordinate to the list of pieces.
 pieces(State, Plyr, Pieces, X, Y) :-
 	Xi is X, Yi is Y,
 	(get(State, [Xi, Yi], Plyr) ->
@@ -104,7 +104,7 @@ pieces(State, Plyr, Pieces, X, Y) :-
 	pieces(State, Plyr, NextPieces, X, Y + 1). % Continue recursion.
 
 % score :: [[Atom]] -> Int -> Int
-% score is the relation between a game state, a player and their score.
+% score is the relation between a game state, a player, and their score.
 score(State, Plyr, Score) :-
 	pieces(State, Plyr, Pieces),
 	length(Pieces, Score).
@@ -185,16 +185,31 @@ moves(_State, _Plyr, [], []).
 
 % Recurse through the pieces and check for valid moves.
 moves(State, Plyr, [Coord|Tail], MvList) :-
-	((Plyr = 1) ->
-		Opp = 2
+	((Plyr = 1, Opp is 2); (Plyr = 2, Opp is 1)),
+	moves(State, Plyr, Tail, NextMvs),
+	(moves(State, Plyr, Opp, Coord, Mv) -> % If there exists a move,
+		MvList = [Mv|NextMvs] % add it to the list,
 	;
-		Opp = 1
-	),
-	findMove(State, Plyr, Opp, Coord, Mv),
-	MvList = [Mv|NextMvs],
-	moves(State, Plyr, Tail, NextMvs).
+		MvList = NextMvs). % else, continue with next pieces.
 
-moves(State, Plyr, Opp, Coord).
+moves(State, Plyr, Opp, [X, Y], Mv) :-
+	get(State, [X, Y], Plyr), % Start position must be player.
+	findMoves(State, Plyr, Opp, [X, Y], 'N', Plyr, Mv).
+
+findMoves(State, Plyr, Opp, [X, Y], 'N', Prev, Mv) :-
+	Yi is Y - 1,
+	get(State, [X, Yi], Slot),
+	\+(Slot = Plyr), % The next slot must not be the same as the player.
+	(
+		% If the slot is the opponent, look further for an empty slot.
+		(Slot = Opp), findMoves(State, Plyr, Opp, [X, Yi], 'N', Opp, Mv)
+	;
+		% If the slot is empty, and the previous the opponent, it's a
+		% valid move.
+		(Slot = ., Prev = Opp, Mv = [X, Yi])
+	).
+
+
 % TODO: Check in each winds for a valid move.
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
