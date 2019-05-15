@@ -183,7 +183,7 @@ moves(Plyr, State, MvList) :-
 
 % Recurse through the pieces and check for valid moves.
 moves(Plyr, State, [Coord|Tail], MvList) :-
-	((Plyr = 1, Opp is 2); (Plyr = 2, Opp is 1)),
+	getOpponent(Plyr, Opp),
 	moves(Plyr, State, Tail, NextMvs), !,
 	(findMoves(State, Plyr, Opp, Coord, Mvs) ->
 		append(Mvs, NextMvs, MvList) % Found moves, append to list.
@@ -214,6 +214,9 @@ partition(Pivot, [Head|Tail], SortedLeft, [Head|SortedRight]) :-
 
 % getXY is a helper for partition to extract the X and Y values.
 getXY([X, Y], X, Y).
+
+% getOpponent is a helper function that returns the opponent.
+getOpponent(Plyr, Opp) :- ((Plyr = 1, Opp is 2); (Plyr = 2, Opp is 1)).
 
 % nextCoord :: [Int, Int] -> Atom -> [Int, Int]
 % nextCoord increments the X and Y coordinate according to the provided
@@ -254,8 +257,32 @@ findMove(State, Plyr, Opp, [X, Y], Wind, Prev, Mv) :-
 	;
 		% If the slot is empty, and the previous the opponent, it's a
 		% valid move.
-		(Slot = ., Prev = Opp, Mv = [Xi, Yi])
+		(Slot = ., Prev = Opp),
+		Mv = [Xi, Yi]
 	).
+
+makeMove(State, Plyr, Move, NewState) :-
+	getOpponent(Plyr, Opp),
+	set(State, S, Move, Plyr),
+	makeMove(S, Plyr, Opp, Move,
+	['N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE'], NewState).
+
+makeMove(State, Plyr, Opp, Move, [Wind|Tail], NewState) :-
+	flipSlots(State, Plyr, Opp, Move, Wind, S),
+	makeMove(S, Plyr, Opp, Move, Tail, NewState).
+makeMove(State, _Plyr, _Opp, _Move, [], State).
+
+flipSlots(State, Plyr, Opp, [X, Y], Wind, NewState) :-
+	nextCoord([X, Y], Wind, [Xi, Yi]),
+	get(State, [Xi, Yi], Slot),
+	(
+		((Slot = Opp),  % Opponent found, should flip.
+		set(State, S, [Xi, Yi], Plyr), % Make flip.
+		flipSlots(S, Plyr, Opp, [Xi, Yi], Wind, NewState)) % Keep going
+	;
+		NewState = State
+	).
+
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -264,11 +291,14 @@ findMove(State, Plyr, Opp, [X, Y], Wind, Prev, Mv) :-
 %% define nextState(Plyr,Move,State,NewState,NextPlyr).
 %   - given that Plyr makes Move in State, it determines NewState (i.e. the next
 %     state) and NextPlayer (i.e. the next player who will move).
-%
-
-
-
-
+nextState(Plyr, [X, Y], State, NewState, NextPlyr) :-
+	makeMove(State, Plyr, [X, Y], NewState),
+	getOpponent(Plyr, Opp),
+	\+terminal(NewState),
+	(moves(Opp, NewState, []) ->
+		NextPlyr = Plyr
+	;
+		NextPlyr = Opp).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
