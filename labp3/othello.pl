@@ -90,7 +90,7 @@ pieces(_State, _Plyr, [], X, Y) :- X > 5, Y > 5.
 
 % If Y is out of bounds, reset Y and increment X.
 pieces(State, Plyr, Pieces, X, Y) :- Y > 5,
-	pieces(State, Plyr, Pieces, X + 1, 0).
+	pieces(State, Plyr, Pieces, X + 1, 0), !.
 
 % Check if player has a piece at the [X, Y] coordinate, if so, add the
 % coordinate to the list of pieces.
@@ -101,7 +101,7 @@ pieces(State, Plyr, Pieces, X, Y) :-
 	;
 		Pieces = NextPieces
 	),
-	pieces(State, Plyr, NextPieces, X, Y + 1). % Continue recursion.
+	pieces(State, Plyr, NextPieces, X, Y + 1), !. % Continue recursion.
 
 % score :: [[Atom]] -> Int -> Int
 % score is the relation between a game state, a player, and their score.
@@ -178,19 +178,19 @@ printList([H | L]) :-
 % moves :: Int -> [[Atom]] -> [[Int, Int]]
 moves(Plyr, State, MvList) :-
 	pieces(State, Plyr, Pieces),
-	moves(State, Plyr, Pieces, MvList).
-
-% Stop recursion on empty piece list.
-moves(_State, _Plyr, [], []).
+	moves(Plyr, State, Pieces, MvList).
 
 % Recurse through the pieces and check for valid moves.
-moves(State, Plyr, [Coord|Tail], MvList) :-
+moves(Plyr, State, [Coord|Tail], MvList) :-
 	((Plyr = 1, Opp is 2); (Plyr = 2, Opp is 1)),
-	moves(State, Plyr, Tail, NextMvs),
+	moves(Plyr, State, Tail, NextMvs), !,
 	(findMove(State, Plyr, Opp, Coord, Mv) -> % If there exists a move,
 		MvList = [Mv|NextMvs] % add it to the list,
 	;
 		MvList = NextMvs). % else, continue with next pieces.
+
+% Stop recursion on empty piece list.
+moves(_Plyr, _State, [], []).
 
 nextCoord([X, Y], 'N', [X, Yi]) :- Yi is Y - 1.
 nextCoord([X, Y], 'S', [X, Yi]) :- Yi is Y + 1.
@@ -201,22 +201,14 @@ nextCoord([X, Y], 'NE', [Xi, Yi]) :- Xi is X + 1, Yi is Y - 1.
 nextCoord([X, Y], 'SW', [Xi, Yi]) :- Xi is X - 1, Yi is Y + 1.
 nextCoord([X, Y], 'SE', [Xi, Yi]) :- Xi is X + 1, Yi is Y + 1.
 
-findMove(State, Plyr, Opp, [X, Y], Mv) :-
-	findMove(State, Plyr, Opp, [X, Y], 'N', Plyr, Mv).
-findMove(State, Plyr, Opp, [X, Y], Mv) :-
-	findMove(State, Plyr, Opp, [X, Y], 'S', Plyr, Mv).
-findMove(State, Plyr, Opp, [X, Y], Mv) :-
-	findMove(State, Plyr, Opp, [X, Y], 'E', Plyr, Mv).
-findMove(State, Plyr, Opp, [X, Y], Mv) :-
-	findMove(State, Plyr, Opp, [X, Y], 'W', Plyr, Mv).
-findMove(State, Plyr, Opp, [X, Y], Mv) :-
-	findMove(State, Plyr, Opp, [X, Y], 'NE', Plyr, Mv).
-findMove(State, Plyr, Opp, [X, Y], Mv) :-
-	findMove(State, Plyr, Opp, [X, Y], 'NE', Plyr, Mv).
-findMove(State, Plyr, Opp, [X, Y], Mv) :-
-	findMove(State, Plyr, Opp, [X, Y], 'SW', Plyr, Mv).
-findMove(State, Plyr, Opp, [X, Y], Mv) :-
-	findMove(State, Plyr, Opp, [X, Y], 'SE', Plyr, Mv).
+findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'N', P, M).
+findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'S', P, M).
+findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'E', P, M).
+findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'W', P, M).
+findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'NE', P, M).
+findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'NE', P, M).
+findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'SW', P, M).
+findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'SE', P, M).
 
 findMove(State, Plyr, Opp, [X, Y], Wind, Prev, Mv) :-
 	nextCoord([X, Y], Wind, [Xi, Yi]),
