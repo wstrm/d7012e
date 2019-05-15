@@ -187,26 +187,49 @@ moves(_State, _Plyr, [], []).
 moves(State, Plyr, [Coord|Tail], MvList) :-
 	((Plyr = 1, Opp is 2); (Plyr = 2, Opp is 1)),
 	moves(State, Plyr, Tail, NextMvs),
-	(moves(State, Plyr, Opp, Coord, Mv) -> % If there exists a move,
+	(findMove(State, Plyr, Opp, Coord, Mv) -> % If there exists a move,
 		MvList = [Mv|NextMvs] % add it to the list,
 	;
 		MvList = NextMvs). % else, continue with next pieces.
 
-moves(State, Plyr, Opp, [X, Y], Mv) :-
-	get(State, [X, Y], Plyr), % Start position must be player.
-	findMoves(State, Plyr, Opp, [X, Y], 'N', Plyr, Mv).
+nextCoord([X, Y], 'N', [X, Yi]) :- Yi is Y - 1.
+nextCoord([X, Y], 'S', [X, Yi]) :- Yi is Y + 1.
+nextCoord([X, Y], 'E', [Xi, Y]) :- Xi is X + 1.
+nextCoord([X, Y], 'W', [Xi, Y]) :- Xi is X - 1.
+nextCoord([X, Y], 'NW', [Xi, Yi]) :- Xi is X - 1, Yi is Y - 1.
+nextCoord([X, Y], 'NE', [Xi, Yi]) :- Xi is X + 1, Yi is Y - 1.
+nextCoord([X, Y], 'SW', [Xi, Yi]) :- Xi is X - 1, Yi is Y + 1.
+nextCoord([X, Y], 'SE', [Xi, Yi]) :- Xi is X + 1, Yi is Y + 1.
 
-findMoves(State, Plyr, Opp, [X, Y], 'N', Prev, Mv) :-
-	Yi is Y - 1,
-	get(State, [X, Yi], Slot),
+findMove(State, Plyr, Opp, [X, Y], Mv) :-
+	findMove(State, Plyr, Opp, [X, Y], 'N', Plyr, Mv).
+findMove(State, Plyr, Opp, [X, Y], Mv) :-
+	findMove(State, Plyr, Opp, [X, Y], 'S', Plyr, Mv).
+findMove(State, Plyr, Opp, [X, Y], Mv) :-
+	findMove(State, Plyr, Opp, [X, Y], 'E', Plyr, Mv).
+findMove(State, Plyr, Opp, [X, Y], Mv) :-
+	findMove(State, Plyr, Opp, [X, Y], 'W', Plyr, Mv).
+findMove(State, Plyr, Opp, [X, Y], Mv) :-
+	findMove(State, Plyr, Opp, [X, Y], 'NE', Plyr, Mv).
+findMove(State, Plyr, Opp, [X, Y], Mv) :-
+	findMove(State, Plyr, Opp, [X, Y], 'NE', Plyr, Mv).
+findMove(State, Plyr, Opp, [X, Y], Mv) :-
+	findMove(State, Plyr, Opp, [X, Y], 'SW', Plyr, Mv).
+findMove(State, Plyr, Opp, [X, Y], Mv) :-
+	findMove(State, Plyr, Opp, [X, Y], 'SE', Plyr, Mv).
+
+findMove(State, Plyr, Opp, [X, Y], Wind, Prev, Mv) :-
+	nextCoord([X, Y], Wind, [Xi, Yi]),
+	get(State, [Xi, Yi], Slot),
 	\+(Slot = Plyr), % The next slot must not be the same as the player.
 	(
 		% If the slot is the opponent, look further for an empty slot.
-		(Slot = Opp), findMoves(State, Plyr, Opp, [X, Yi], 'N', Opp, Mv)
+		(Slot = Opp),
+		findMove(State, Plyr, Opp, [Xi, Yi], Wind, Opp, Mv)
 	;
 		% If the slot is empty, and the previous the opponent, it's a
 		% valid move.
-		(Slot = ., Prev = Opp, Mv = [X, Yi])
+		(Slot = ., Prev = Opp, Mv = [Xi, Yi])
 	).
 
 
