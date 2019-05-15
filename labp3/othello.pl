@@ -184,14 +184,17 @@ moves(Plyr, State, MvList) :-
 moves(Plyr, State, [Coord|Tail], MvList) :-
 	((Plyr = 1, Opp is 2); (Plyr = 2, Opp is 1)),
 	moves(Plyr, State, Tail, NextMvs), !,
-	(findMove(State, Plyr, Opp, Coord, Mv) -> % If there exists a move,
-		MvList = [Mv|NextMvs] % add it to the list,
+	(findMoves(State, Plyr, Opp, Coord, Mvs) ->
+		append(Mvs, NextMvs, MvList) % Found moves, append to list.
 	;
-		MvList = NextMvs). % else, continue with next pieces.
+		MvList = NextMvs). % No moves found.
 
 % Stop recursion on empty piece list.
 moves(_Plyr, _State, [], []).
 
+% nextCoord :: [Int, Int] -> Atom -> [Int, Int]
+% nextCoord increments the X and Y coordinate according to the provided
+% direction.
 nextCoord([X, Y], 'N', [X, Yi]) :- Yi is Y - 1.
 nextCoord([X, Y], 'S', [X, Yi]) :- Yi is Y + 1.
 nextCoord([X, Y], 'E', [Xi, Y]) :- Xi is X + 1.
@@ -201,15 +204,22 @@ nextCoord([X, Y], 'NE', [Xi, Yi]) :- Xi is X + 1, Yi is Y - 1.
 nextCoord([X, Y], 'SW', [Xi, Yi]) :- Xi is X - 1, Yi is Y + 1.
 nextCoord([X, Y], 'SE', [Xi, Yi]) :- Xi is X + 1, Yi is Y + 1.
 
-findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'N', P, M).
-findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'S', P, M).
-findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'E', P, M).
-findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'W', P, M).
-findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'NE', P, M).
-findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'NE', P, M).
-findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'SW', P, M).
-findMove(S, P, O, C, M) :- findMove(S, P, O, C, 'SE', P, M).
+% findMoves :: [[Atom]] -> Int -> Int -> [[Int, Int]] -> [[Int, Int]]
+% findMoves finds all legal moves in every direction for a provided slot.
+findMoves(State, Plyr, Opp, Coord, Mvs) :-
+	findMoves(State, Plyr, Opp, Coord, Mvs,
+	['N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE']).
+findMoves(State, Plyr, Opp, Coord, Mvs, [Wind|Tail]) :-
+	findMoves(State, Plyr, Opp, Coord, NextMvs, Tail),
+	(findMove(State, Plyr, Opp, Coord, Wind, Plyr, Mv) ->
+		Mvs = [Mv|NextMvs] % Found move, add to list.
+	;
+		Mvs = NextMvs). % No move.
+findMoves(_State, _Plyr, _Opp, _Coord, [], []).
 
+% findMove ::
+% 	[[Atom]] -> Int -> Int -> [Int, Int] -> Atom -> Atom -> [[Int, Int]]
+% findMove finds a legal move from the provided slot for a direction.
 findMove(State, Plyr, Opp, [X, Y], Wind, Prev, Mv) :-
 	nextCoord([X, Y], Wind, [Xi, Yi]),
 	get(State, [Xi, Yi], Slot),
@@ -223,9 +233,6 @@ findMove(State, Plyr, Opp, [X, Y], Wind, Prev, Mv) :-
 		% valid move.
 		(Slot = ., Prev = Opp, Mv = [Xi, Yi])
 	).
-
-
-% TODO: Check in each winds for a valid move.
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
