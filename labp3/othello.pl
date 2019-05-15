@@ -178,7 +178,8 @@ printList([H | L]) :-
 % moves :: Int -> [[Atom]] -> [[Int, Int]]
 moves(Plyr, State, MvList) :-
 	pieces(State, Plyr, Pieces),
-	moves(Plyr, State, Pieces, MvList).
+	moves(Plyr, State, Pieces, UnsortedMvList),
+	quicksort(UnsortedMvList, MvList).
 
 % Recurse through the pieces and check for valid moves.
 moves(Plyr, State, [Coord|Tail], MvList) :-
@@ -191,6 +192,28 @@ moves(Plyr, State, [Coord|Tail], MvList) :-
 
 % Stop recursion on empty piece list.
 moves(_Plyr, _State, [], []).
+
+% Quicksort a list of coordinates.
+% quicksort :: [[Int, Int]] -> [[Int, Int]]
+quicksort([], []).
+quicksort([Pivot|Rest], SortedList) :-
+	partition(Pivot, Rest, Left, Right), !,
+	quicksort(Left, SortedLeft), !,
+	quicksort(Right, SortedRight), !,
+	append(SortedLeft, [Pivot|SortedRight], SortedList).
+
+% Partition a list of coordinates into two recursively at a pivot.
+% partition :: [Int, Int] -> [[Int, Int]] -> [[Int, Int]] -> [[Int, Int]]
+partition(_Pivot, [], [], []).
+partition(Pivot, [Head|Tail], [Head|SortedLeft], SortedRight) :-
+	getXY(Pivot, PivotX, PivotY), getXY(Head, HeadX, HeadY),
+	(HeadX < PivotX; HeadX = PivotX, HeadY =< PivotY),
+	partition(Pivot, Tail, SortedLeft, SortedRight).
+partition(Pivot, [Head|Tail], SortedLeft, [Head|SortedRight]) :-
+	partition(Pivot, Tail, SortedLeft, SortedRight).
+
+% getXY is a helper for partition to extract the X and Y values.
+getXY([X, Y], X, Y).
 
 % nextCoord :: [Int, Int] -> Atom -> [Int, Int]
 % nextCoord increments the X and Y coordinate according to the provided
