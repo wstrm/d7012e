@@ -81,6 +81,34 @@ initBoard([ [.,.,.,.,.,.],
 %%%  InitialPlyr is the player who moves first.
 initialize(InitialState, 1) :- initBoard(InitialState).
 
+% pieces :: [[Atom]] -> Int -> Int
+% pieces is the relation between pieces on the game board and their player.
+pieces(State, Plyr, Pieces) :- pieces(State, Plyr, Pieces, 0, 0).
+
+% Stop recursion when both X and Y is out of bounds.
+pieces(_State, _Plyr, [], X, Y) :- X > 5, Y > 5.
+
+% If Y is out of bounds, reset Y and increment X.
+pieces(State, Plyr, Pieces, X, Y) :- Y > 5,
+	pieces(State, Plyr, Pieces, X + 1, 0).
+
+% Check if player has a piece at the [X, Y] coordinate, if add the coordinate to
+% the list of pieces.
+pieces(State, Plyr, Pieces, X, Y) :-
+	Xi is X, Yi is Y,
+	(get(State, [Xi, Yi], Plyr) ->
+		Pieces = [[Xi, Yi]|NextPieces]
+	;
+		Pieces = NextPieces
+	),
+	pieces(State, Plyr, NextPieces, X, Y + 1). % Continue recursion.
+
+% score :: [[Atom]] -> Int -> Int
+% score is the relation between a game state, a player and their score.
+score(State, Plyr, Score) :-
+	pieces(State, Plyr, Pieces),
+	length(Pieces, Score).
+
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%winner(...)%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,37 +125,13 @@ winner(State, Plyr) :-
 		Plyr = 1;
 		Plyr = 2).
 
-% score :: [[Any]] -> Int -> Int
-% score is the relation between a game state, a player and their score.
-score(State, Plyr, Score) :- score(State, Plyr, Score, 0, 0).
-
-% Stop recursion when both X and Y is out of bounds.
-score(_State, _Plyr, 0, X, Y) :- X > 5, Y > 5.
-
-% If Y is out of bounds, reset Y and increment X.
-score(State, Plyr, Score, X, Y) :- Y > 5, score(State, Plyr, Score, X + 1, 0).
-
-% Check if player has a score in at the [X, Y] coordinate, if so, continue the
-% recursion and add 1 to the final score (together with the result from the
-% recursion).
-score(State, Plyr, Score, X, Y) :-
-	Xi is X, Yi is Y,
-	get(State, [Xi, Yi], Plyr),
-	score(State, Plyr, NextScore, X, Y + 1),
-	Score is NextScore + 1.
-
-% No score for the provided coordinate, continue recursion without adding any
-% points.
-score(State, Plyr, Score, X, Y) :-
-	score(State, Plyr, Score, X, Y + 1).
-
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%tie(...)%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% define tie(State) here.
 %    - true if terminal State is a "tie" (no winner)
-% tie :: [[Any]]
+% tie :: [[Atom]]
 tie(State) :-
 	terminal(State),
 	score(State, 1, SameScore),
@@ -139,7 +143,7 @@ tie(State) :-
 %%
 %% define terminal(State).
 %   - true if State is a terminal
-% terminal :: [[Any]]
+% terminal :: [[Atom]]
 terminal(State) :-
 	moves(1, State, []),
 	moves(2, State, []).
@@ -171,11 +175,27 @@ printList([H | L]) :-
 %%
 %% define moves(Plyr,State,MvList).
 %   - returns list MvList of all legal moves Plyr can make in State
-%
+% moves :: Int -> [[Atom]] -> [[Int, Int]]
+moves(Plyr, State, MvList) :-
+	pieces(State, Plyr, Pieces),
+	moves(State, Plyr, Pieces, MvList).
 
+% Stop recursion on empty piece list.
+moves(_State, _Plyr, [], []).
 
+% Recurse through the pieces and check for valid moves.
+moves(State, Plyr, [Coord|Tail], MvList) :-
+	((Plyr = 1) ->
+		Opp = 2
+	;
+		Opp = 1
+	),
+	findMove(State, Plyr, Opp, Coord, Mv),
+	MvList = [Mv|NextMvs],
+	moves(State, Plyr, Tail, NextMvs).
 
-
+moves(State, Plyr, Opp, Coord).
+% TODO: Check in each winds for a valid move.
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
