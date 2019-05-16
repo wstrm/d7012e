@@ -10,8 +10,8 @@
 
 
 
-  %do not chagne the follwoing line!
-  :- ensure_loaded('play.pl').
+%do not chagne the follwing line!
+:- ensure_loaded('play.pl').
 
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
@@ -219,7 +219,8 @@ partition(Pivot, [Head|Tail], SortedLeft, [Head|SortedRight]) :-
 getXY([X, Y], X, Y).
 
 % getOpponent is a helper function that returns the opponent.
-getOpponent(Plyr, Opp) :- ((Plyr = 1, Opp is 2); (Plyr = 2, Opp is 1)).
+getOpponent(1, 2).
+getOpponent(2, 1).
 
 % nextCoord :: [Int, Int] -> Atom -> [Int, Int]
 % nextCoord increments the X and Y coordinate according to the provided
@@ -270,19 +271,29 @@ makeMove(State, Plyr, Move, NewState) :-
 	makeMove(S, Plyr, Opp, Move,
 	['N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE'], NewState).
 makeMove(State, Plyr, Opp, Move, [Wind|Tail], NewState) :-
-	flipSlots(State, Plyr, Opp, Move, Wind, S),
+	(flipSlots(State, Plyr, Opp, Move, Wind, FlippedState) ->
+		S = FlippedState % Update state.
+	;
+		S = State % Keep old state, none are flipped.
+	),
 	makeMove(S, Plyr, Opp, Move, Tail, NewState).
 makeMove(State, _Plyr, _Opp, _Move, [], State).
 
+% Check if next slot is the same as player.
+flipSlots(State, Plyr, _Opp, [X, Y], Wind, State) :-
+	nextCoord([X, Y], Wind, [Xi, Yi]),
+	get(State, [Xi, Yi], Plyr). % End player slot found, end recursion.
+
+% Look for opponent in next slot, and if so continue search until a player slot
+% is found, or fail if none is found.
 flipSlots(State, Plyr, Opp, [X, Y], Wind, NewState) :-
 	nextCoord([X, Y], Wind, [Xi, Yi]),
 	get(State, [Xi, Yi], Slot),
-	((Slot = Opp) -> % Opponent found, should flip.
-		(set(State, S, [Xi, Yi], Plyr), % Make flip.
-		flipSlots(S, Plyr, Opp, [Xi, Yi], Wind, NewState)) % Keep going.
-	;
-		NewState = State
-	).
+	Slot = Opp, % Opponent found.
+	% Keep looking if the opponent should be flipped.
+	flipSlots(State, Plyr, Opp, [Xi, Yi], Wind, FlippedState),
+	% Make the flip.
+	set(FlippedState, NewState, [Xi, Yi], Plyr).
 
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
@@ -292,7 +303,7 @@ flipSlots(State, Plyr, Opp, [X, Y], Wind, NewState) :-
 %% define nextState(Plyr,Move,State,NewState,NextPlyr).
 %   - given that Plyr makes Move in State, it determines NewState (i.e. the next
 %     state) and NextPlayer (i.e. the next player who will move).
-nextState(Plyr, [n], State, State, NextPlyr) :- nextPlyr(State, Plyr, NextPlyr).
+nextState(Plyr, n, State, State, NextPlyr) :- nextPlyr(State, Plyr, NextPlyr).
 nextState(Plyr, [X, Y], State, NewState, NextPlyr) :-
 	makeMove(State, Plyr, [X, Y], NewState),
 	nextPlyr(NewState, Plyr, NextPlyr).
@@ -325,10 +336,10 @@ validmove(Plyr, State, Proposed) :-
 %   NOTE2. If State is not terminal h should be an estimate of
 %          the value of state (see handout on ideas about
 %          good heuristics.
-
-
-
-
+h(State, 100) :- winner(State, 1), !.
+h(State, -100) :- winner(State, 2), !.
+h(State, 0) :- tie(State), !.
+h(_State, 0).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -337,10 +348,7 @@ validmove(Plyr, State, Proposed) :-
 %% define lowerBound(B).
 %   - returns a value B that is less than the actual or heuristic value
 %     of all states.
-
-
-
-
+lowerBound(-101).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -349,10 +357,7 @@ validmove(Plyr, State, Proposed) :-
 %% define upperBound(B).
 %   - returns a value B that is greater than the actual or heuristic value
 %     of all states.
-
-
-
-
+upperBound(101).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
