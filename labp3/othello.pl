@@ -266,7 +266,6 @@ makeMove(State, Plyr, Move, NewState) :-
 	set(State, S, Move, Plyr),
 	makeMove(S, Plyr, Opp, Move,
 	['N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE'], NewState).
-
 makeMove(State, Plyr, Opp, Move, [Wind|Tail], NewState) :-
 	flipSlots(State, Plyr, Opp, Move, Wind, S),
 	makeMove(S, Plyr, Opp, Move, Tail, NewState).
@@ -275,10 +274,9 @@ makeMove(State, _Plyr, _Opp, _Move, [], State).
 flipSlots(State, Plyr, Opp, [X, Y], Wind, NewState) :-
 	nextCoord([X, Y], Wind, [Xi, Yi]),
 	get(State, [Xi, Yi], Slot),
-	(
-		((Slot = Opp),  % Opponent found, should flip.
-		set(State, S, [Xi, Yi], Plyr), % Make flip.
-		flipSlots(S, Plyr, Opp, [Xi, Yi], Wind, NewState)) % Keep going
+	((Slot = Opp) -> % Opponent found, should flip.
+		(set(State, S, [Xi, Yi], Plyr), % Make flip.
+		flipSlots(S, Plyr, Opp, [Xi, Yi], Wind, NewState)) % Keep going.
 	;
 		NewState = State
 	).
