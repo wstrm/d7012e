@@ -1,3 +1,5 @@
+:- ensure_loaded('othello.pl').
+
 testBoard1([ [.,.,.,.,.,.],
              [.,1,.,.,.,.],
              [.,.,2,1,.,.],
