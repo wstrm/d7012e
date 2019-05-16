@@ -106,8 +106,8 @@ pieces(State, Plyr, Pieces, X, Y) :-
 % score :: [[Atom]] -> Int -> Int
 % score is the relation between a game state, a player, and their score.
 score(State, Plyr, Score) :-
-	pieces(State, Plyr, Pieces),
-	length(Pieces, Score).
+	pieces(State, Plyr, Pieces), !,
+	length(Pieces, Score), !.
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -117,9 +117,9 @@ score(State, Plyr, Score) :-
 %     - returns winning player if State is a terminal position and
 %     Plyr has a higher score than the other player
 winner(State, Plyr) :-
-	terminal(State),
-	score(State, 1, Score1),
-	score(State, 2, Score2),
+	terminal(State), !,
+	score(State, 1, Score1), !,
+	score(State, 2, Score2), !,
 	Score1 =\= Score2,
 	((Score1 < Score2) ->
 		Plyr = 1;
@@ -133,9 +133,9 @@ winner(State, Plyr) :-
 %    - true if terminal State is a "tie" (no winner)
 % tie :: [[Atom]]
 tie(State) :-
-	terminal(State),
-	score(State, 1, SameScore),
-	score(State, 2, SameScore).
+	terminal(State), !,
+	score(State, 1, SameScore), !,
+	score(State, 2, SameScore), !.
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -145,8 +145,8 @@ tie(State) :-
 %   - true if State is a terminal
 % terminal :: [[Atom]]
 terminal(State) :-
-	moves(1, State, []),
-	moves(2, State, []).
+	moves(1, State, [n]), !,
+	moves(2, State, [n]), !.
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -182,7 +182,7 @@ moves(Plyr, State, MvList) :-
 	(UnsortedMvList = [] ->
 		MvList = [n]
 	;
-		quicksort(UnsortedMvList, MvList)).
+		sort(UnsortedMvList, MvList)).
 
 % Recurse through the pieces and check for valid moves.
 moves(Plyr, State, [Coord|Tail], MvList) :-
@@ -195,28 +195,6 @@ moves(Plyr, State, [Coord|Tail], MvList) :-
 
 % Stop recursion on empty piece list.
 moves(_Plyr, _State, [], []).
-
-% Quicksort a list of coordinates.
-% quicksort :: [[Int, Int]] -> [[Int, Int]]
-quicksort([], []).
-quicksort([Pivot|Rest], SortedList) :-
-	partition(Pivot, Rest, Left, Right), !,
-	quicksort(Left, SortedLeft), !,
-	quicksort(Right, SortedRight), !,
-	append(SortedLeft, [Pivot|SortedRight], SortedList).
-
-% Partition a list of coordinates into two recursively at a pivot.
-% partition :: [Int, Int] -> [[Int, Int]] -> [[Int, Int]] -> [[Int, Int]]
-partition(_Pivot, [], [], []).
-partition(Pivot, [Head|Tail], [Head|SortedLeft], SortedRight) :-
-	getXY(Pivot, PivotX, PivotY), getXY(Head, HeadX, HeadY),
-	(HeadX < PivotX; HeadX = PivotX, HeadY =< PivotY),
-	partition(Pivot, Tail, SortedLeft, SortedRight).
-partition(Pivot, [Head|Tail], SortedLeft, [Head|SortedRight]) :-
-	partition(Pivot, Tail, SortedLeft, SortedRight).
-
-% getXY is a helper for partition to extract the X and Y values.
-getXY([X, Y], X, Y).
 
 % getOpponent is a helper function that returns the opponent.
 getOpponent(1, 2).
