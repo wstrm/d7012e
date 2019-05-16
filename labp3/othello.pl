@@ -179,7 +179,10 @@ printList([H | L]) :-
 moves(Plyr, State, MvList) :-
 	pieces(State, Plyr, Pieces),
 	moves(Plyr, State, Pieces, UnsortedMvList),
-	quicksort(UnsortedMvList, MvList).
+	(UnsortedMvList = [] ->
+		MvList = [n]
+	;
+		quicksort(UnsortedMvList, MvList)).
 
 % Recurse through the pieces and check for valid moves.
 moves(Plyr, State, [Coord|Tail], MvList) :-
@@ -289,10 +292,13 @@ flipSlots(State, Plyr, Opp, [X, Y], Wind, NewState) :-
 %% define nextState(Plyr,Move,State,NewState,NextPlyr).
 %   - given that Plyr makes Move in State, it determines NewState (i.e. the next
 %     state) and NextPlayer (i.e. the next player who will move).
+nextState(Plyr, [n], State, State, NextPlyr) :- nextPlyr(State, Plyr, NextPlyr).
 nextState(Plyr, [X, Y], State, NewState, NextPlyr) :-
 	makeMove(State, Plyr, [X, Y], NewState),
+	nextPlyr(NewState, Plyr, NextPlyr).
+
+nextPlyr(NewState, Plyr, NextPlyr) :-
 	getOpponent(Plyr, Opp),
-	\+terminal(NewState),
 	(moves(Opp, NewState, []) ->
 		NextPlyr = Plyr
 	;
