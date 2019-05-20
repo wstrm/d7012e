@@ -132,7 +132,7 @@ getmove(1,State,Move) :-
 getmove(2,State,Move) :-
   showState(State),
   writeln('Computer is moving...'),
-  MaxDepth is 6, % max depth is here set to 6
+  MaxDepth is 4, % max depth is here set to 6
   mmeval(2,State,_,Move,MaxDepth,SeF),
   write('Computer move computed by searching '),
   write(SeF),
@@ -233,4 +233,3 @@ maxMove(V1,_,V2,M2,V2,M2) :- V1 < V2.
 %% Return the min of best so far and the current move.
 minMove(V1,M1,V2,_,V1,M1) :- V1 =< V2.
 minMove(V1,_,V2,M2,V2,M2) :- V1 > V2.
-

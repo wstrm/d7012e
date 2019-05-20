@@ -3,8 +3,8 @@
  %    D7012E Declarative languages
  %    Luleå University of Technology
  %
- %    Student full name: <TO BE FILLED IN BEFORE THE GRADING>
- %    Student user id  : <TO BE FILLED IN BEFORE THE GRADING>
+ %    Student full name: William Wennerström
+ %    Student user id  : wenwil-5
  %
  /* ------------------------------------------------------- */
 
