@@ -19,6 +19,12 @@ add(arc(A, B)) :- path(B, A, _), !, fail. % There must be no path B -> A and A -
 add(arc(A, B)) :- asserta(arc(A, B)).
 
 % c)
+% Returns an empty list if no paths were found.
 allPaths(N, L) :-
 	M is N - 1,
 	findall(P, (path(_A, _B, P), length(P, M)), L).
+
+% Returns false if no paths were found.
+allPaths2(N, L) :-
+	M is N - 1,
+	setof(P, A^B^(path(A, B, P), length(P, M)), L).
