@@ -20,3 +20,23 @@ comb(N, [_|T], Comb) :-
 
 conc([], L, L).
 conc([X|L1], L2, [X|L3]) :- conc(L1, L2, L3).
+
+% a) Better variant.
+comb1([], []).
+comb1([X|T], [X|NT]) :- comb1(T, NT).
+comb1([_|T], NT) :- comb1(T, NT).
+
+subLists1(L, R) :-
+	setof(S, comb1(L, S), R).
+
+% b)
+sum([], 0).
+sum([X], X).
+sum([X|T], S) :- sum(T, NS), !, S is NS + X.
+
+keep([], _, []).
+keep([L|T], Max, [L|R]) :-
+	sum(L, N),
+	N =< Max,
+	keep(T, Max, R), !.
+keep([_|T], Max, R) :- keep(T, Max, R), !.
