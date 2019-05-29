@@ -19,7 +19,7 @@
  sum([], 0).
  sum([X], X).
  sum([X|Tail], Sum) :-
-	 sum(Tail, NextSum), !,
+	 sum(Tail, NextSum),
 	 Sum is X + NextSum.
 
  % Find any combination of bags that equal volume.
@@ -28,4 +28,4 @@
 	 sum(BagsPacked, SuitcaseVolume).
 
  % Try with a lower suitcase volume.
- pack(AB, SV, BP) :- SV > 0, NSV is SV - 1, pack(AB, NSV, BP), !.
+ pack(AB, SV, BP) :- SV > 0, NSV is SV - 1, pack(AB, NSV, BP).
