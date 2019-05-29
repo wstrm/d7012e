@@ -1,0 +1,28 @@
+a)
+
+p :- a, b.
+p :- c.
+
+Answer: (a and b) or c
+
+
+b)
+
+p :- a, !, b.
+p :- c.
+
+Answer: (a and b) or (not a and c)
+
+c)
+
+p :- c.
+p :- a, !, b.
+
+Answer: c or (a and b)
+
+d)
+
+p :- !, c.
+p :- a, b.
+
+Answer: c
