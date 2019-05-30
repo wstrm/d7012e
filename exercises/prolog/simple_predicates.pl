@@ -49,3 +49,27 @@ permutation1([X|L], P) :- permutation1(L, L1), insert1(X, L1, P).
 
 permutation2([], []).
 permutation2([X|L], P) :- permutation2(L, L1), del1(X, P, L1).
+
+rev1([], []).
+rev1([X|Tail], Ys) :-
+	rev1(Tail, NextYs),
+	append1(X, NextYs, Ys).
+
+init1([_], []).
+init1([X|Xs], [X|Ys]) :- init1(Xs, Ys).
+
+nth1(0, [X|_], X).
+nth1(N, [_|T], X) :-
+	NextN is N - 1,
+	nth1(NextN, T, X), !.
+
+take1(0, _, []).
+take1(_, [], []). % No more available elements.
+take1(N, [X|T], [X|NextT]) :-
+	NextN is N - 1,
+	take1(NextN, T, NextT), !.
+
+drop1(0, L, L).
+drop1(N, [_|T], NextT) :-
+	NextN is N - 1,
+	drop1(NextN, T, NextT), !.
